@@ -1,0 +1,54 @@
+package com.test;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+
+/*
+Assumptions:
+1.User has access to dictionary API : https://api.dictionaryapi.dev/api/v2/entries/en/
+2.Dictionary API is up and running and provides correct responses (status code ='200 OK') for valid english words 
+3.User have a access to java run time environment to run the provided code in any java ide.
+*/
+
+public class Dictionary {
+	private StringBuilder output = new StringBuilder();
+	private static String inputword = "WORKING";
+	ArrayList<String> wordList = new ArrayList<String>();
+
+	public Dictionary(final String str) {
+		inputword = str;
+		System.out.println("input word provided  is  : " + inputword);
+	}
+
+	public static void main(String args[]) throws IOException {
+		Dictionary combobj = new Dictionary(inputword);
+		System.out.println(combobj.returnArrayOfWords(0));
+	}
+
+	//Method retuns list of valid english words
+	private ArrayList<String> returnArrayOfWords(int start) throws IOException {
+		for (int i = start; i < inputword.length(); ++i) {
+			output.append(inputword.charAt(i));
+			if(Dictionary.isEnglishWord(output.toString())) {
+				wordList.add(output.toString());			
+			}
+			if (i < inputword.length()) {
+				returnArrayOfWords(i + 1);
+			}
+			output.setLength(output.length() - 1);			
+		}
+		//System.out.println(wordList);
+		return wordList;
+	}	
+	
+	//Method returns true if a valid english word is provided as input else returns false
+	public static boolean isEnglishWord(String word) throws IOException {
+		URL urlForGetRequest = new URL("https://api.dictionaryapi.dev/api/v2/entries/en/" + word);
+		HttpURLConnection conection = (HttpURLConnection) urlForGetRequest.openConnection();
+		conection.setRequestMethod("GET");
+		int responseCode = conection.getResponseCode();
+		return (responseCode == HttpURLConnection.HTTP_OK) ? true : false;		
+	}
+}
